@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Scanner</title>
+    <style>
+        body {
+            background-color: #ffcc80;
+            text-align: center;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            background: white;
+            width: 90%;
+            max-width: 400px;
+            margin: auto;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+        }
+        button {
+            background-color: #ff6600;
+            color: white;
+            border: none;
+            padding: 15px;
+            margin: 10px;
+            font-size: 16px;
+            width: 80%;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #cc5200;
+        }
+        #camera-container {
+            display: none;
+        }
+        #qr-result {
+            margin-top: 20px;
+        }
+        .copy-box {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .copy-box input {
+            width: 70%;
+            padding: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>QR Code Scanner</h2>
+        <button id="upload-btn">Upload QR Code Image</button>
+        <input type="file" id="file-input" style="display: none;">
+        
+        <div id="camera-container">
+            <video id="camera" width="100%" height="200"></video>
+            <button id="flash-btn">Toggle Flashlight</button>
+            <button id="restart-btn">Restart Scanner</button>
+        </div>
+        
+        <button id="permission-btn">Request Camera Permissions</button>
+        
+        <div id="qr-result" class="copy-box">
+            <input type="text" id="qr-url" readonly>
+            <button id="copy-btn">COPY</button>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('permission-btn').addEventListener('click', async () => {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                document.getElementById('camera-container').style.display = 'block';
+                document.getElementById('permission-btn').style.display = 'none';
+                document.getElementById('camera').srcObject = stream;
+                document.getElementById('camera').play();
+            } catch (error) {
+                alert('Camera access denied!');
+            }
+        });
+
+        document.getElementById('upload-btn').addEventListener('click', () => {
+            document.getElementById('file-input').click();
+        });
+        
+        document.getElementById('copy-btn').addEventListener('click', () => {
+            const qrUrl = document.getElementById('qr-url');
+            qrUrl.select();
+            document.execCommand('copy');
+            alert('Copied to clipboard!');
+        });
+    </script>
+</body>
+</html>
