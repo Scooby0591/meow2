@@ -33,12 +33,6 @@
         button:hover {
             background-color: #cc5200;
         }
-        #camera-container {
-            display: none;
-        }
-        #qr-result {
-            margin-top: 20px;
-        }
         .copy-box {
             display: flex;
             justify-content: center;
@@ -48,6 +42,20 @@
             width: 70%;
             padding: 10px;
         }
+        @media only screen and (max-width: 768px) {
+            #camera-container, #permission-btn {
+                display: block;
+            }
+        }
+        @media only screen and (min-width: 769px) {
+            #camera-container, #permission-btn {
+                display: none;
+            }
+            #upload-btn {
+                font-size: 20.8px;
+                padding: 19.5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -56,14 +64,6 @@
         <button id="upload-btn">Upload QR Code Image</button>
         <input type="file" id="file-input" style="display: none;">
         
-        <div id="camera-container">
-            <video id="camera" width="100%" height="200"></video>
-            <button id="flash-btn">Toggle Flashlight</button>
-            <button id="restart-btn">Restart Scanner</button>
-        </div>
-        
-        <button id="permission-btn">Request Camera Permissions</button>
-        
         <div id="qr-result" class="copy-box">
             <input type="text" id="qr-url" readonly>
             <button id="copy-btn">COPY</button>
@@ -71,18 +71,6 @@
     </div>
 
     <script>
-        document.getElementById('permission-btn').addEventListener('click', async () => {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-                document.getElementById('camera-container').style.display = 'block';
-                document.getElementById('permission-btn').style.display = 'none';
-                document.getElementById('camera').srcObject = stream;
-                document.getElementById('camera').play();
-            } catch (error) {
-                alert('Camera access denied!');
-            }
-        });
-
         document.getElementById('upload-btn').addEventListener('click', () => {
             document.getElementById('file-input').click();
         });
