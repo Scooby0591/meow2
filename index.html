@@ -40,7 +40,7 @@
             margin-top: 10px;
         }
         .copy-box input {
-            width: 70%;
+            flex-grow: 1;
             padding: 10px;
             height: 40px;
             font-size: 16px;
@@ -48,7 +48,8 @@
         .copy-box button {
             height: 40px;
             font-size: 16px;
-            padding: 0 15px;
+            padding: 0 10px;
+            width: 80px;
         }
         @media only screen and (max-width: 768px) {
             #camera-container, #permission-btn {
@@ -63,6 +64,9 @@
                 font-size: 20.8px;
                 padding: 19.5px;
             }
+            .copy-box input, .copy-box button {
+                height: 35px;
+            }
         }
     </style>
 </head>
@@ -70,7 +74,7 @@
     <div class="container">
         <h2>QR Code Scanner</h2>
         <button id="upload-btn">Upload QR Code Image</button>
-        <input type="file" id="file-input" style="display: none;">
+        <input type="file" id="file-input" style="display: none;" accept="image/*">
         
         <div id="qr-result" class="copy-box">
             <input type="text" id="qr-url" readonly>
@@ -83,12 +87,44 @@
             document.getElementById('file-input').click();
         });
         
+        document.getElementById('file-input').addEventListener('change', async (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = async function () {
+                    const img = new Image();
+                    img.src = reader.result;
+                    img.onload = async function () {
+                        const qrCode = await scanQRCode(img);
+                        document.getElementById('qr-url').value = qrCode || "No QR code found";
+                    };
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+        
         document.getElementById('copy-btn').addEventListener('click', () => {
             const qrUrl = document.getElementById('qr-url');
             qrUrl.select();
             document.execCommand('copy');
             alert('Copied to clipboard!');
         });
+        
+        async function scanQRCode(image) {
+            if ('BarcodeDetector' in window) {
+                const barcodeDetector = new BarcodeDetector({ formats: ['qr_code'] });
+                try {
+                    const barcodes = await barcodeDetector.detect(image);
+                    return barcodes.length > 0 ? barcodes[0].rawValue : null;
+                } catch (error) {
+                    console.error('QR Code detection error:', error);
+                    return null;
+                }
+            } else {
+                alert('QR Code scanning not supported in this browser.');
+                return null;
+            }
+        }
     </script>
 </body>
 </html>
