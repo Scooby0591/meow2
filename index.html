@@ -5,12 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QR Code Scanner</title>
     <style>
+        /* Basic styles for the page */
         body {
             background-color: #ffcc80;
             text-align: center;
             font-family: Arial, sans-serif;
         }
         
+        /* Container styling */
         .container {
             background: white;
             width: 90%;
@@ -21,6 +23,7 @@
             box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
         }
         
+        /* Button styling */
         button {
             background-color: #ff6600;
             color: white;
@@ -33,10 +36,12 @@
             border-radius: 10px;
         }
         
+        /* Button hover effect */
         button:hover {
             background-color: #cc5200;
         }
         
+        /* QR code result box styling */
         .copy-box {
             display: flex;
             justify-content: center;
@@ -64,6 +69,50 @@
             border-radius: 0;
         }
         
+        /* File preview section */
+        .file-preview {
+            max-width: 100px;
+            max-height: 100px;
+            display: none;
+            margin: auto;
+            border-radius: 10px;
+            position: relative;
+        }
+        
+        .file-preview img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+        
+        /* Delete preview button styling */
+        .delete-preview {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: red;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+        }
+        
+        /* Arrow button for navigation */
+        .arrow-btn {
+            display: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background-color: #ff6600;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            margin-left: 10px;
+        }
+        
+        /* Responsive styles */
         @media only screen and (max-width: 768px) {
             button {
                 font-size: 5vw;
@@ -90,13 +139,24 @@
         }
     </style>
     
+    <!-- External QR scanning library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
 </head>
 <body>
     <div class="container">
         <h2>QR Code Scanner</h2>
         
-        <button id="upload-btn">Upload QR Code Image</button>
+        <!-- Preview uploaded file -->
+        <div class="file-preview" id="file-preview">
+            <img id="preview-img" src="">
+            <button class="delete-preview" onclick="removePreview()">×</button>
+        </div>
+        
+        <div style="display: flex; justify-content: center; align-items: center;">
+            <button id="upload-btn">Upload</button>
+            <button id="arrow-btn" class="arrow-btn">→</button>
+        </div>
+        
         <input type="file" id="file-input" style="display: none;" accept="image/*">
         
         <button id="restart-btn" style="display: none;">Restart Scanner</button>
@@ -108,44 +168,44 @@
     </div>
 
     <script>
+        // Handle file upload button click
         document.getElementById('upload-btn').addEventListener('click', () => {
-            console.log("Upload button clicked");
             document.getElementById('file-input').click();
         });
         
+        // Handle file selection
         document.getElementById('file-input').addEventListener('change', async (event) => {
-            console.log("File input changed");
             const file = event.target.files[0];
             if (file) {
-                console.log("File selected: ", file.name);
                 const reader = new FileReader();
                 reader.onload = async function () {
-                    console.log("File loaded successfully");
                     const img = new Image();
                     img.src = reader.result;
                     img.onload = async function () {
-                        console.log("Image loaded");
+                        document.getElementById('preview-img').src = reader.result;
+                        document.getElementById('file-preview').style.display = 'block';
+                        document.getElementById('arrow-btn').style.display = 'block';
+                        document.getElementById('upload-btn').style.width = 'auto';
+                        
                         const qrCode = await scanQRCode(img);
-                        console.log("QR Code scanned: ", qrCode);
                         document.getElementById('qr-url').value = qrCode || "No QR code found";
                     };
                 };
                 reader.readAsDataURL(file);
             }
         });
-        
-        document.getElementById('copy-btn').addEventListener('click', () => {
-            const qrUrl = document.getElementById('qr-url');
-            if (qrUrl.value && qrUrl.value !== "No QR code found") {
-                navigator.clipboard.writeText(qrUrl.value).then(() => {
-                    console.log("Copied to clipboard: ", qrUrl.value);
-                    alert('Copied to clipboard!');
-                }).catch(err => console.error('Error copying text: ', err));
-            }
-        });
-        
+
+        // Remove previewed file
+        function removePreview() {
+            document.getElementById('file-preview').style.display = 'none';
+            document.getElementById('preview-img').src = '';
+            document.getElementById('file-input').value = '';
+            document.getElementById('arrow-btn').style.display = 'none';
+            document.getElementById('upload-btn').style.width = '80%';
+        }
+
+        // Scan the QR code from an image
         async function scanQRCode(image) {
-            console.log("Scanning QR code...");
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext("2d");
             canvas.width = image.width;
@@ -154,12 +214,6 @@
             
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const qrCode = jsQR(imageData.data, canvas.width, canvas.height);
-            
-            if (qrCode) {
-                console.log("QR Code detected: ", qrCode.data);
-            } else {
-                console.log("No QR Code found");
-            }
             
             return qrCode ? qrCode.data : null;
         }
