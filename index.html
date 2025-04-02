@@ -93,6 +93,8 @@
             }
             #restart-btn {
                 display: block; /* Show restart button on PC */
+                width: 60%; /* Smaller width than upload button */
+                margin-top: 10px;
             }
         }
     </style>
@@ -108,14 +110,14 @@
         <button id="upload-btn">Upload QR Code Image</button>
         <input type="file" id="file-input" style="display: none;" accept="image/*">
         
+        <!-- Restart scanner button (visible on PC) -->
+        <button id="restart-btn" style="display: none;">Restart Scanner</button>
+        
         <!-- Section to display scanned QR code URL -->
         <div id="qr-result" class="copy-box">
             <input type="text" id="qr-url" readonly>
             <button id="copy-btn">COPY</button>
         </div>
-        
-        <!-- Restart scanner button (visible on PC) -->
-        <button id="restart-btn" style="display: none;">Restart Scanner</button>
     </div>
 
     <script>
