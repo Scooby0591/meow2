@@ -74,6 +74,9 @@
             .copy-box input, .copy-box button {
                 height: 40px;
             }
+            #restart-btn {
+                display: block;
+            }
         }
     </style>
 </head>
@@ -87,6 +90,8 @@
             <input type="text" id="qr-url" readonly>
             <button id="copy-btn">COPY</button>
         </div>
+        
+        <button id="restart-btn" style="display: none;">Restart Scanner</button>
     </div>
 
     <script>
@@ -112,9 +117,11 @@
         
         document.getElementById('copy-btn').addEventListener('click', () => {
             const qrUrl = document.getElementById('qr-url');
-            qrUrl.select();
-            document.execCommand('copy');
-            alert('Copied to clipboard!');
+            if (qrUrl.value && qrUrl.value !== "No QR code found") {
+                qrUrl.select();
+                document.execCommand('copy');
+                alert('Copied to clipboard!');
+            }
         });
         
         async function scanQRCode(image) {
